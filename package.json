@@ -1,0 +1,39 @@
+{
+  "name": "@enhanced-dom/checkbox",
+  "version": "0.0.1",
+  "description": "Customizable checkbox webcomponent",
+  "keywords": [],
+  "repository": "https://github.com/enhanced-dom/checkbox.git",
+  "license": "MIT",
+  "author": "CD9B4A105290E17E0948E021DF4105107C88693C59C0B891CCC08366C51AEA990902A6A156AC87D88A2FC41422A5E1C3C4071F251F19441C4516000EC25F87DF",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "rimraf dist/*",
+    "build": "tsc -p ./tsconfig.json && copyfiles -f src/*.pcss src/*.pcss.d.ts dist",
+    "postbuild": "copyfiles LICENSE.md README.md dist && @enhanced-dom-copy-packagejson",
+    "package": "cd dist && npm pack",
+    "postinstall": "@enhanced-dom-husky",
+    "css": "webpack --config typed-styles.config.js",
+    "lint": "eslint --fix --config eslint.config.js --ext ts,tsx src && stylelint --fix --config stylelint.config.js src/**/*.pcss",
+    "demo": "webpack serve --config ./demo/webpack.config.js"
+  },
+  "dependencies": {
+    "@enhanced-dom/webcomponent": "^0.0.7",
+    "classnames": "^2.3.1",
+    "lodash.debounce": "^4.0.8"
+  },
+  "devDependencies": {
+    "@enhanced-dom/babel": "^0.0.5",
+    "@enhanced-dom/lint": "^0.0.7",
+    "@enhanced-dom/react": "^0.0.8",
+    "@enhanced-dom/webpack": "^0.0.7",
+    "@types/lodash.debounce": "^4.0.6",
+    "@types/react": "^17.0.8",
+    "@types/react-dom": "^17.0.5",
+    "typescript": "^4.2.2"
+  },
+  "engines": {
+    "node": ">=14.17.0",
+    "npm": ">=8.0.0"
+}
+}
