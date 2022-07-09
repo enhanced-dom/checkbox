@@ -7,14 +7,17 @@ import * as styles from './checkbox.webcomponent.pcss'
 
 export enum CheckboxType {
   STANDARD = 'standard',
-  CUSTOM = 'custom'
+  CUSTOM = 'custom',
 }
 
-export type CheckboxWebComponentAttributes = { type?: CheckboxType } & ({ tristate?: false; value?: boolean } | { value?: string; tristate: true })
+export type CheckboxWebComponentAttributes = { type?: CheckboxType; delegated?: Record<string, string | number | boolean> } & (
+  | { tristate?: false; value?: boolean }
+  | { value?: string; tristate: true }
+)
 
 export class CheckboxWebComponent extends HTMLElement {
   static get observedAttributes() {
-    return ['value', 'class', 'style', 'type', 'tristate', 'disabled']
+    return ['value', 'class', 'style', 'type', 'tristate', 'disabled', 'delegated']
   }
 
   static tag = 'enhanced-dom-checkbox'
@@ -30,48 +33,51 @@ export class CheckboxWebComponent extends HTMLElement {
     backgroundColorSelectedTint: styles.variablesCheckboxBackgroundColorSelectedTint,
     backgroundColorUnselected: styles.variablesCheckboxBackgroundColorUnselected,
     backgroundColorUnselectedTint: styles.variablesCheckboxBackgroundColorUnselectedTint,
-    borderColorDisabled:styles.variablesCheckboxBorderColorDisabled,
-    borderColorSelected:styles.variablesCheckboxBorderColorSelected,
-    borderColorUnselected:styles.variablesCheckboxBorderColorUnselected,
-    borderRadius:styles.variablesCheckboxBorderRadius,
-    borderSize:styles.variablesCheckboxBorderSize,
-    focusColor:styles.variablesCheckboxFocusColor,
-    focusSize:styles.variablesCheckboxFocusSize,
-    size:styles.variablesCheckboxSize,
-    textColorDisabled:styles.variablesCheckboxTextColorDisabled,
-    textColorSelected:styles.variablesCheckboxTextColorSelected
+    borderColorDisabled: styles.variablesCheckboxBorderColorDisabled,
+    borderColorSelected: styles.variablesCheckboxBorderColorSelected,
+    borderColorUnselected: styles.variablesCheckboxBorderColorUnselected,
+    borderRadius: styles.variablesCheckboxBorderRadius,
+    borderSize: styles.variablesCheckboxBorderSize,
+    focusColor: styles.variablesCheckboxFocusColor,
+    focusSize: styles.variablesCheckboxFocusSize,
+    size: styles.variablesCheckboxSize,
+    textColorDisabled: styles.variablesCheckboxTextColorDisabled,
+    textColorSelected: styles.variablesCheckboxTextColorSelected,
   } as const
 
   static sectionIdentifiers = selectors
 
-  static template = ({ value, tristate, type, disabled, ...rest }: Record<string, any> = {}) => {
+  static template = ({ value, tristate, type, disabled, delegated = {}, ...rest }: Record<string, any> = {}) => {
     return {
       tag: 'div',
       attributes: {
         ...rest,
+        ...delegated,
         class: classNames(styles.checkbox, rest.class, { [styles.standard]: type == CheckboxType.STANDARD }),
-        role: tristate ? 'checkboxtristate' : 'checkbox',
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         'aria-checked': tristate && value === null ? 'mixed' : (!!value).toString(),
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         'aria-disabled': disabled ? true : false,
+        role: tristate ? 'checkboxtristate' : 'checkbox',
         tabindex: disabled ? undefined : 0,
         [SECTION_ID]: CheckboxWebComponent.sectionIdentifiers.CONTAINER,
       },
       children:
         type === CheckboxType.CUSTOM
           ? [
-            {
-              tag: 'slot',
-              attributes: {
-                name: JSON.stringify(value),
+              {
+                tag: 'slot',
+                attributes: {
+                  name: JSON.stringify(value),
+                },
               },
-            },
-          ]
+            ]
           : undefined,
     }
   }
   static renderer: IRenderingEngine = new HtmlRenderer('@enhanced-dom/CheckboxWebComponent', CheckboxWebComponent.template)
   private _attributes: Record<string, any> = {
-    type: CheckboxType.STANDARD
+    type: CheckboxType.STANDARD,
   }
   private _eventListenerTracker = new EventListenerTracker()
 
@@ -86,7 +92,7 @@ export class CheckboxWebComponent extends HTMLElement {
   }
   set value(v: string | boolean | null) {
     if (typeof v === 'string') {
-      let parsedValue = JSON.parse(v)
+      const parsedValue = JSON.parse(v)
       this._attributes.value = this.tristate ? parsedValue : !!parsedValue
     } else {
       this._attributes.value = v
@@ -128,7 +134,7 @@ export class CheckboxWebComponent extends HTMLElement {
   }
 
   private _addEventListeners = (activate?: boolean) => {
-    this._eventListenerTracker.unregister({nodeLocator: this._findCheckboxContainer})
+    this._eventListenerTracker.unregister({ nodeLocator: this._findCheckboxContainer })
     if (this._attributes.disabled) {
       this._eventListenerTracker.register({
         hook: (e: Element) => {
@@ -138,10 +144,10 @@ export class CheckboxWebComponent extends HTMLElement {
               event.preventDefault()
               event.preventDefault()
             }
-          } 
+          }
           const keyHandler = (event: KeyboardEvent) => {
-            if (["Enter", " "].includes(event.key)) {
-             stopEvent(event)
+            if (['Enter', ' '].includes(event.key)) {
+              stopEvent(event)
             }
           }
           e.addEventListener('click', stopEvent)
@@ -154,7 +160,7 @@ export class CheckboxWebComponent extends HTMLElement {
             e1.removeEventListener('keypress', keyHandler)
           }
         },
-        nodeLocator: this._findCheckboxContainer
+        nodeLocator: this._findCheckboxContainer,
       })
     } else {
       this._eventListenerTracker.register({
@@ -164,10 +170,10 @@ export class CheckboxWebComponent extends HTMLElement {
               this.value = !this.value
               this.dispatchEvent(new Event('change'))
             }
-          } 
+          }
           const keyHandler = (event: KeyboardEvent) => {
-            if (["Enter", " "].includes(event.key)) {
-              toggleValue(event) 
+            if (['Enter', ' '].includes(event.key)) {
+              toggleValue(event)
             }
           }
           e.addEventListener('click', toggleValue)
@@ -180,7 +186,7 @@ export class CheckboxWebComponent extends HTMLElement {
             e1.removeEventListener('keypress', keyHandler)
           }
         },
-        nodeLocator: this._findCheckboxContainer
+        nodeLocator: this._findCheckboxContainer,
       })
     }
     if (activate) {
@@ -188,7 +194,7 @@ export class CheckboxWebComponent extends HTMLElement {
     }
   }
 
-  private _findCheckboxContainer = () => {
+  private _findCheckboxContainer = (): HTMLElement => {
     return this.shadowRoot.querySelector(`*[${SECTION_ID}="${CheckboxWebComponent.sectionIdentifiers.CONTAINER}"]`)
   }
 
@@ -203,6 +209,14 @@ export class CheckboxWebComponent extends HTMLElement {
 
   connectedCallback() {
     this.render()
+    this._internals.labels?.forEach((label) => {
+      label.addEventListener('click', () => {
+        this._findCheckboxContainer().focus()
+      })
+      label.addEventListener('touchstart', () => {
+        this._findCheckboxContainer().focus()
+      })
+    })
   }
 
   get tristate() {
@@ -228,18 +242,31 @@ export class CheckboxWebComponent extends HTMLElement {
     this._addEventListeners(true)
   }
 
+  get delegated() {
+    return this._attributes.delegated
+  }
+  set delegated(d: string | Record<string, string | number | boolean>) {
+    if (typeof d === 'string') {
+      this._attributes.delegated = JSON.parse(d)
+    } else {
+      this._attributes.delegated = d
+    }
+  }
 
   attributeChangedCallback(name: string, oldVal: string, newVal: string) {
     if (oldVal !== newVal) {
       switch (name) {
         case 'value':
-          this.value = newVal == 'null' ? null : (newVal === 'true' || newVal === '')
+          this.value = newVal == 'null' ? null : newVal === 'true' || newVal === ''
           break
         case 'tristate':
           this.tristate = newVal
           break
         case 'disabled':
           this.disabled = newVal
+          break
+        case 'delegated':
+          this.delegated = newVal
           break
         default:
           this._attributes[name] = newVal
