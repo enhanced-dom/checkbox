@@ -1,6 +1,6 @@
 {
   "name": "@enhanced-dom/checkbox",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Customizable checkbox webcomponent",
   "keywords": [],
   "repository": "https://github.com/enhanced-dom/checkbox.git",
@@ -18,22 +18,24 @@
     "demo": "webpack serve --config ./demo/webpack.config.js"
   },
   "dependencies": {
-    "@enhanced-dom/webcomponent": "^0.0.7",
-    "classnames": "^2.3.1",
+    "@enhanced-dom/webcomponent": "^0.0.12",
+    "classnames": "^2.3.2",
     "lodash.debounce": "^4.0.8"
   },
   "devDependencies": {
     "@enhanced-dom/babel": "^0.0.5",
     "@enhanced-dom/lint": "^0.0.7",
-    "@enhanced-dom/react": "^0.0.9",
-    "@enhanced-dom/webpack": "^0.0.7",
-    "@types/lodash.debounce": "^4.0.6",
-    "@types/react": "^17.0.8",
-    "@types/react-dom": "^17.0.5",
-    "typescript": "^4.2.2"
+    "@enhanced-dom/react": "^0.0.15",
+    "@enhanced-dom/icon": "^0.0.8",
+    "@enhanced-dom/fontawesome": "^0.0.5",
+    "@enhanced-dom/webpack": "^0.0.10",
+    "@types/lodash.debounce": "^4.0.7",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "typescript": "^4.9.5"
   },
   "engines": {
     "node": ">=14.17.0",
     "npm": ">=8.0.0"
-}
+  }
 }

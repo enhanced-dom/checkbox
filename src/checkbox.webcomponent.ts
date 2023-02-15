@@ -1,4 +1,5 @@
-import { HtmlRenderer, SECTION_ID, EventListenerTracker, type IRenderingEngine, type ElementInternals } from '@enhanced-dom/webcomponent'
+import { WebcomponentRenderer, type IRenderingEngine, type ElementInternals } from '@enhanced-dom/webcomponent'
+import { EventListenerTracker, SECTION_ID } from '@enhanced-dom/dom'
 import classNames from 'classnames'
 import debounce from 'lodash.debounce'
 
@@ -47,6 +48,7 @@ export class CheckboxWebComponent extends HTMLElement {
 
   static sectionIdentifiers = selectors
 
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   static template = ({ value, tristate, type, disabled, delegated = {}, ...rest }: Record<string, any> = {}) => {
     return {
       tag: 'div',
@@ -54,12 +56,6 @@ export class CheckboxWebComponent extends HTMLElement {
         ...rest,
         ...delegated,
         class: classNames(styles.checkbox, rest.class, { [styles.standard]: type == CheckboxType.STANDARD }),
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        'aria-checked': tristate && value === null ? 'mixed' : (!!value).toString(),
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        'aria-disabled': disabled ? true : false,
-        role: tristate ? 'checkboxtristate' : 'checkbox',
-        tabindex: disabled ? undefined : 0,
         [SECTION_ID]: CheckboxWebComponent.sectionIdentifiers.CONTAINER,
       },
       children:
@@ -75,19 +71,17 @@ export class CheckboxWebComponent extends HTMLElement {
           : undefined,
     }
   }
-  static renderer: IRenderingEngine = new HtmlRenderer('@enhanced-dom/CheckboxWebComponent', CheckboxWebComponent.template)
+  static renderer: IRenderingEngine = new WebcomponentRenderer('@enhanced-dom/CheckboxWebComponent', CheckboxWebComponent.template)
   private _attributes: Record<string, any> = {
     type: CheckboxType.STANDARD,
+    value: false,
   }
   private _eventListenerTracker = new EventListenerTracker()
 
-  //#region form api compatibility
+  //#region html form api compatibility
   static formAssociated = true
   private _internals: ElementInternals
   get value() {
-    if (!this._attributes.triState) {
-      return this._attributes.value ?? false
-    }
     return this._attributes.value
   }
   set value(v: string | boolean | null) {
@@ -97,6 +91,8 @@ export class CheckboxWebComponent extends HTMLElement {
     } else {
       this._attributes.value = v
     }
+    this._updateReadonlyAttributes()
+    this._updateForm()
   }
   get form() {
     return this._internals?.form
@@ -129,73 +125,24 @@ export class CheckboxWebComponent extends HTMLElement {
     super()
     this.attachShadow({ mode: 'open' })
     this._internals = this.attachInternals?.() as ElementInternals
-    this._addEventListeners()
-    CheckboxWebComponent.renderer.render(this.shadowRoot, this._attributes)
   }
 
-  private _addEventListeners = (activate?: boolean) => {
-    this._eventListenerTracker.unregister({ nodeLocator: this._findCheckboxContainer })
-    if (this._attributes.disabled) {
-      this._eventListenerTracker.register({
-        hook: (e: Element) => {
-          const stopEvent = (event: MouseEvent | TouchEvent | KeyboardEvent) => {
-            if (event.target === this._findCheckboxContainer()) {
-              event.stopPropagation()
-              event.preventDefault()
-              event.preventDefault()
-            }
-          }
-          const keyHandler = (event: KeyboardEvent) => {
-            if (['Enter', ' '].includes(event.key)) {
-              stopEvent(event)
-            }
-          }
-          e.addEventListener('click', stopEvent)
-          e.addEventListener('touchstart', stopEvent)
-          e.addEventListener('keypress', keyHandler)
-
-          return (e1: Element) => {
-            e1.removeEventListener('click', stopEvent)
-            e1.removeEventListener('touchstart', stopEvent)
-            e1.removeEventListener('keypress', keyHandler)
-          }
-        },
-        nodeLocator: this._findCheckboxContainer,
-      })
-    } else {
-      this._eventListenerTracker.register({
-        hook: (e: Element) => {
-          const toggleValue = (event: MouseEvent | TouchEvent | KeyboardEvent) => {
-            if (event.target === this._findCheckboxContainer()) {
-              this.value = !this.value
-              this.dispatchEvent(new Event('change'))
-            }
-          }
-          const keyHandler = (event: KeyboardEvent) => {
-            if (['Enter', ' '].includes(event.key)) {
-              toggleValue(event)
-            }
-          }
-          e.addEventListener('click', toggleValue)
-          e.addEventListener('touchstart', toggleValue)
-          e.addEventListener('keypress', keyHandler)
-
-          return (e1: Element) => {
-            e1.removeEventListener('click', toggleValue)
-            e1.removeEventListener('touchstart', toggleValue)
-            e1.removeEventListener('keypress', keyHandler)
-          }
-        },
-        nodeLocator: this._findCheckboxContainer,
-      })
+  private _addEventListeners = () => {
+    this.addEventListener('click', () => {
+      this.value = !this.value
+      this.dispatchEvent(new Event('change'))
+    })
+    this.addEventListener('touchstart', () => {
+      this.value = !this.value
+      this.dispatchEvent(new Event('change'))
+    })
+    const keyHandler = (event: KeyboardEvent) => {
+      if (['Enter', ' '].includes(event.key)) {
+        this.value = !this.value
+        this.dispatchEvent(new Event('change'))
+      }
     }
-    if (activate) {
-      this._eventListenerTracker.refreshSubscriptions()
-    }
-  }
-
-  private _findCheckboxContainer = (): HTMLElement => {
-    return this.shadowRoot.querySelector(`*[${SECTION_ID}="${CheckboxWebComponent.sectionIdentifiers.CONTAINER}"]`)
+    this.addEventListener('keypress', keyHandler)
   }
 
   render = debounce(
@@ -209,25 +156,50 @@ export class CheckboxWebComponent extends HTMLElement {
 
   connectedCallback() {
     this.render()
-    this._internals.labels?.forEach((label) => {
-      label.addEventListener('click', () => {
-        this._findCheckboxContainer().focus()
-      })
-      label.addEventListener('touchstart', () => {
-        this._findCheckboxContainer().focus()
-      })
-    })
+    this._addEventListeners()
+    this._updateReadonlyAttributes()
+    this._updateForm()
+  }
+
+  private _updateReadonlyAttributes() {
+    if (this._attributes.tristate && this._attributes.value === null) {
+      this.setAttribute('aria-checked', 'mixed')
+    } else {
+      this.setAttribute('aria-checked', (!!this._attributes.value).toString())
+    }
+
+    if (this._attributes.disabled) {
+      this.setAttribute('aria-disabled', '')
+    } else {
+      this.removeAttribute('aria-disabled')
+    }
+    if (this._attributes.disabled) {
+      this.removeAttribute('tabindex')
+    } else {
+      this.setAttribute('tabindex', '0')
+    }
+    this.setAttribute('role', this._attributes.tristate ? 'checkboxtristate' : 'checkbox')
+  }
+
+  private _updateForm() {
+    // all values in form data need to be... strings. Even if we were to send a boolean value, it still becomes a string.
+    this._internals.setFormValue(JSON.stringify(this._attributes.value))
   }
 
   get tristate() {
     return this._attributes.tristate
   }
-  set tristate(t: string | boolean) {
+  set tristate(t: string | boolean | null) {
     if (typeof t === 'string') {
       this._attributes.tristate = t === 'true' || t === ''
     } else {
-      this._attributes.tristate = t
+      this._attributes.tristate = !!t
     }
+    if (!this._attributes.tristate && this.value == null) {
+      this.value = false
+      this.dispatchEvent(new Event('change'))
+    }
+    this._updateReadonlyAttributes()
   }
 
   get disabled() {
@@ -239,7 +211,7 @@ export class CheckboxWebComponent extends HTMLElement {
     } else {
       this._attributes.disabled = d
     }
-    this._addEventListeners(true)
+    this._updateReadonlyAttributes()
   }
 
   get delegated() {
@@ -276,5 +248,3 @@ export class CheckboxWebComponent extends HTMLElement {
     }
   }
 }
-
-CheckboxWebComponent.renderer.addStyle(styles._stylesheetName)
