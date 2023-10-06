@@ -1,5 +1,5 @@
-import { WebcomponentRenderer, type IRenderingEngine, type ElementInternals } from '@enhanced-dom/webcomponent'
 import { EventListenerTracker, SECTION_ID } from '@enhanced-dom/dom'
+import { WebcomponentRenderer, type IRenderingEngine, type ElementInternals } from '@enhanced-dom/webcomponent'
 import classNames from 'classnames'
 import debounce from 'lodash.debounce'
 
@@ -18,7 +18,7 @@ export type CheckboxWebComponentAttributes = { type?: CheckboxType; delegated?: 
 
 export class CheckboxWebComponent extends HTMLElement {
   static get observedAttributes() {
-    return ['value', 'class', 'style', 'type', 'tristate', 'disabled', 'delegated']
+    return ['value', 'type', 'tristate', 'disabled', 'delegated']
   }
 
   static tag = 'enhanced-dom-checkbox'
@@ -55,7 +55,7 @@ export class CheckboxWebComponent extends HTMLElement {
       attributes: {
         ...rest,
         ...delegated,
-        class: classNames(styles.checkbox, rest.class, { [styles.standard]: type == CheckboxType.STANDARD }),
+        class: classNames(styles.checkbox, delegated.class, { [styles.standard]: type == CheckboxType.STANDARD }),
         [SECTION_ID]: CheckboxWebComponent.sectionIdentifiers.CONTAINER,
       },
       children:
