@@ -1,10 +1,9 @@
-import React, { FormEventHandler, useRef, useState } from 'react'
+import React, { FormEventHandler, useState } from 'react'
+import { faCheckCircle, faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons'
 
 import { Icon } from './icon.component'
 import { Checkbox } from './checkbox.component'
-import { faCheckCircle, faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons'
-
-import { CheckboxType, CheckboxWebComponent } from '../src/checkbox.webcomponent'
+import { CheckboxType } from '../src/checkbox.webcomponent'
 
 export const App = () => {
   const [value, setValue] = useState<string | null>(null)

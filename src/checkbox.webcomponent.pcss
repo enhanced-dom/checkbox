@@ -1,21 +1,21 @@
 /* stylelint-disable no-descending-specificity */
 
 :export {
-  variables_checkbox_size: "--checkbox-size";
-  variables_checkbox_border_size: "--checkbox-border-size";
-  variables_checkbox_border_radius: "--checkbox-border-radius";
-  variables_checkbox_border_color_unselected: "--checkbox-border-color-unselected";
-  variables_checkbox_border_color_selected: "--checkbox-border-color-selected";
-  variables_checkbox_border_color_disabled: "--checkbox-border-color-disabled";
-  variables_checkbox_focus_size: "--checkbox-focus-size";
-  variables_checkbox_focus_color: "--checkbox-focus-color";
-  variables_checkbox_text_color_selected: "--checkbox-text-color-selected";
-  variables_checkbox_text_color_disabled: "--checkbox-text-color-disabled";
-  variables_checkbox_background_color_unselected: "--checkbox-background-color-unselected";
-  variables_checkbox_background_color_unselected_tint: "--checkbox-background-color-unselected-tint";
-  variables_checkbox_background_color_selected: "--checkbox-background-color-selected";
-  variables_checkbox_background_color_selected_tint: "--checkbox-background-color-selected-tint";
-  variables_checkbox_background_color_disabled: "--checkbox-background-color-disabled";
+  variables_checkbox_size: '--checkbox-size';
+  variables_checkbox_border_size: '--checkbox-border-size';
+  variables_checkbox_border_radius: '--checkbox-border-radius';
+  variables_checkbox_border_color_unselected: '--checkbox-border-color-unselected';
+  variables_checkbox_border_color_selected: '--checkbox-border-color-selected';
+  variables_checkbox_border_color_disabled: '--checkbox-border-color-disabled';
+  variables_checkbox_focus_size: '--checkbox-focus-size';
+  variables_checkbox_focus_color: '--checkbox-focus-color';
+  variables_checkbox_text_color_selected: '--checkbox-text-color-selected';
+  variables_checkbox_text_color_disabled: '--checkbox-text-color-disabled';
+  variables_checkbox_background_color_unselected: '--checkbox-background-color-unselected';
+  variables_checkbox_background_color_unselected_tint: '--checkbox-background-color-unselected-tint';
+  variables_checkbox_background_color_selected: '--checkbox-background-color-selected';
+  variables_checkbox_background_color_selected_tint: '--checkbox-background-color-selected-tint';
+  variables_checkbox_background_color_disabled: '--checkbox-background-color-disabled';
 }
 
 .checkbox {
@@ -30,17 +30,15 @@
   --checkbox-focus-color-local: var(--checkbox-focus-color, hsl(216deg 94% 73%));
   --checkbox-text-color-selected-local: var(--checkbox-text-color-selected, #fff);
   --checkbox-background-color-unselected-local: var(--checkbox-background-color-unselected, hsl(300deg 3% 93%));
-  --checkbox-background-color-unselected-tint-local:
-    var(
-      --checkbox-background-color-unselected-tint,
-      var(--checkbox-background-color-unselected, #fff)
-    );
+  --checkbox-background-color-unselected-tint-local: var(
+    --checkbox-background-color-unselected-tint,
+    var(--checkbox-background-color-unselected, #fff)
+  );
   --checkbox-background-color-selected-local: var(--checkbox-background-color-selected, hsl(217deg 95% 68%));
-  --checkbox-background-color-selected-tint-local:
-    var(
-      --checkbox-background-color-selected-tint,
-      var(--checkbox-background-color-selected, hsl(216deg 80% 57%))
-    );
+  --checkbox-background-color-selected-tint-local: var(
+    --checkbox-background-color-selected-tint,
+    var(--checkbox-background-color-selected, hsl(216deg 80% 57%))
+  );
   --checkbox-background-color-disabled-local: var(--checkbox-background-color-disabled, hsl(216deg 0% 57%));
 
   display: flex;
@@ -55,7 +53,7 @@
     &::before,
     &::after {
       position: absolute;
-      content: "";
+      content: '';
     }
 
     &::before {
@@ -64,12 +62,11 @@
       border: var(--checkbox-border-size-local) solid var(--checkbox-border-color-unselected-local);
       border-radius: var(--checkbox-border-radius-local);
       background: var(--checkbox-border-color-unselected-local);
-      background-image:
-        linear-gradient(
-          to bottom,
-          var(--checkbox-border-color-unselected-local) ;,
-          var(--checkbox-border-color-unselected-tint-local) 70%
-        );
+      background-image: linear-gradient(
+        to bottom,
+        var(--checkbox-border-color-unselected-local) ;,
+        var(--checkbox-border-color-unselected-tint-local) 70%
+      );
     }
   }
 }
@@ -94,30 +91,28 @@
   & .checkbox {
     &.standard {
       &::before {
-        background-image:
-          linear-gradient(
-            to bottom,
-            var(--checkbox-border-color-unselected-tint-local),
-            var(--checkbox-border-color-unselected-local) ; 30%
-          );
+        background-image: linear-gradient(
+          to bottom,
+          var(--checkbox-border-color-unselected-tint-local),
+          var(--checkbox-border-color-unselected-local) ; 30%
+        );
       }
     }
   }
 }
 
-:host([aria-checked="mixed"]),
-:host([aria-checked="true"]) {
+:host([aria-checked='mixed']),
+:host([aria-checked='true']) {
   & .checkbox {
     &.standard {
       &::before {
         border-color: var(--checkbox-border-color-selected-local);
         background: var(--checkbox-background-color-selected-local);
-        background-image:
-          linear-gradient(
-            to bottom,
-            var(--checkbox-background-color-selected-local),
-            var(--checkbox-background-color-selected-tint-local)
-          );
+        background-image: linear-gradient(
+          to bottom,
+          var(--checkbox-background-color-selected-local),
+          var(--checkbox-background-color-selected-tint-local)
+        );
       }
 
       &::after {
@@ -131,19 +126,18 @@
     & .checkbox {
       &.standard {
         &::before {
-          background-image:
-            linear-gradient(
-              to bottom,
-              var(--checkbox-background-color-selected-local),
-              var(--checkbox-background-color-selected-local)
-            );
+          background-image: linear-gradient(
+            to bottom,
+            var(--checkbox-background-color-selected-local),
+            var(--checkbox-background-color-selected-local)
+          );
         }
       }
     }
   }
 }
 
-:host([aria-checked="mixed"]) {
+:host([aria-checked='mixed']) {
   & .checkbox {
     &.standard {
       &::after {
@@ -154,7 +148,7 @@
   }
 }
 
-:host([aria-checked="true"]) {
+:host([aria-checked='true']) {
   & .checkbox {
     &.standard {
       &::after {
