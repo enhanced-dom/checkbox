@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useState } from 'react'
+import { type FormEventHandler, useState } from 'react'
 import { faCheckCircle, faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons'
 
 import { Icon } from './icon.component'
