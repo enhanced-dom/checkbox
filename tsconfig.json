@@ -8,9 +8,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "preserveConstEnums" : true
+    "preserveConstEnums": true
   },
-  "include": [
-    "src/**/*.ts",
-  ]
+  "include": ["src/**/*.ts", "src/**/*.pcss"]
 }

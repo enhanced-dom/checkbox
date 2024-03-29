@@ -1,9 +1,10 @@
-import { EventListenerTracker, SECTION_ID } from '@enhanced-dom/dom'
-import { WebcomponentRenderer, type IRenderingEngine, type ElementInternals } from '@enhanced-dom/webcomponent'
+/* global ElementInternals */
+import { EventListenerTracker } from '@enhanced-dom/dom'
+import { STYLESHEET_ATTRIBUTE_NAME } from '@enhanced-dom/css'
+import { WebcomponentRenderer, type IRenderingEngine } from '@enhanced-dom/webcomponent'
 import classNames from 'classnames'
 import debounce from 'lodash.debounce'
 
-import { selectors } from './checkbox.selectors'
 import * as styles from './checkbox.webcomponent.pcss'
 
 export enum CheckboxType {
@@ -22,12 +23,10 @@ export class CheckboxWebComponent extends HTMLElement {
   }
 
   static tag = 'enhanced-dom-checkbox'
-  static register = () => {
-    if (!window.customElements.get(CheckboxWebComponent.tag)) {
-      window.customElements.define(CheckboxWebComponent.tag, CheckboxWebComponent)
-    }
+  static identifier = 'urn:enhanced-dom:checkbox'
+  static parts = {
+    wrapper: 'wrapper',
   }
-
   static cssVariables = {
     backgroundColorDisabled: styles.variablesCheckboxBackgroundColorDisabled,
     backgroundColorSelected: styles.variablesCheckboxBackgroundColorSelected,
@@ -46,30 +45,43 @@ export class CheckboxWebComponent extends HTMLElement {
     textColorSelected: styles.variablesCheckboxTextColorSelected,
   } as const
 
-  static sectionIdentifiers = selectors
+  static register = () => {
+    if (!window.customElements.get(CheckboxWebComponent.tag)) {
+      window.customElements.define(CheckboxWebComponent.tag, CheckboxWebComponent)
+    }
+  }
 
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
   static template = ({ value, tristate, type, disabled, delegated = {}, ...rest }: Record<string, any> = {}) => {
-    return {
-      tag: 'div',
-      attributes: {
-        ...rest,
-        ...delegated,
-        class: classNames(styles.checkbox, delegated.class, { [styles.standard]: type == CheckboxType.STANDARD }),
-        [SECTION_ID]: CheckboxWebComponent.sectionIdentifiers.CONTAINER,
+    return [
+      {
+        tag: 'style',
+        attributes: {
+          [STYLESHEET_ATTRIBUTE_NAME]: 'enhanced-dom-checkbox',
+        },
+        children: [{ content: styles.css }],
       },
-      children:
-        type === CheckboxType.CUSTOM
-          ? [
-              {
-                tag: 'slot',
-                attributes: {
-                  name: JSON.stringify(value),
+      {
+        tag: 'div',
+        attributes: {
+          ...rest,
+          ...delegated,
+          part: CheckboxWebComponent.parts.wrapper,
+          class: classNames(styles.checkbox, delegated.class, { [styles.standard]: type == CheckboxType.STANDARD }),
+        },
+        children:
+          type === CheckboxType.CUSTOM
+            ? [
+                {
+                  tag: 'slot',
+                  attributes: {
+                    name: JSON.stringify(value),
+                  },
                 },
-              },
-            ]
-          : undefined,
-    }
+              ]
+            : undefined,
+      },
+    ]
   }
   static renderer: IRenderingEngine = new WebcomponentRenderer('@enhanced-dom/CheckboxWebComponent', CheckboxWebComponent.template)
   private _attributes: Record<string, any> = {
@@ -179,6 +191,7 @@ export class CheckboxWebComponent extends HTMLElement {
       this.setAttribute('tabindex', '0')
     }
     this.setAttribute('role', this._attributes.tristate ? 'checkboxtristate' : 'checkbox')
+    this.setAttribute('exportparts', Object.values(CheckboxWebComponent.parts).join(', '))
   }
 
   private _updateForm() {

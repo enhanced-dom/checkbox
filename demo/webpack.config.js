@@ -36,21 +36,12 @@ module.exports = (env = {}, argv = {}) => {
         {
           test: /\.pcss$/,
           use: webpackConfigFactory.loaders.styleConfigFactory({
-            extract: isProduction,
             sourceMap: !isProduction,
             parser: 'postcss',
             typedStyles: true,
             modules: true,
             raw: true,
-          }),
-        },
-        {
-          test: /\.css$/,
-          use: webpackConfigFactory.loaders.styleConfigFactory({
-            extract: isProduction,
-            sourceMap: !isProduction,
-            parser: 'postcss',
-            typedStyles: false,
+            extract: true,
           }),
         },
         {
