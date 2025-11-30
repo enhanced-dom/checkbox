@@ -1,5 +1,3 @@
-/* global ElementInternals */
-import { EventListenerTracker } from '@enhanced-dom/dom'
 import { STYLESHEET_ATTRIBUTE_NAME } from '@enhanced-dom/css'
 import { WebcomponentRenderer, type IRenderingEngine } from '@enhanced-dom/webcomponent'
 import classNames from 'classnames'
@@ -51,8 +49,7 @@ export class CheckboxWebComponent extends HTMLElement {
     }
   }
 
-  //eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static template = ({ value, tristate, type, disabled, delegated = {}, ...rest }: Record<string, any> = {}) => {
+  static template = ({ value, type, delegated = {} }: Record<string, any> = {}) => {
     return [
       {
         tag: 'style',
@@ -64,7 +61,6 @@ export class CheckboxWebComponent extends HTMLElement {
       {
         tag: 'div',
         attributes: {
-          ...rest,
           ...delegated,
           part: CheckboxWebComponent.parts.wrapper,
           class: classNames(styles.checkbox, delegated.class, { [styles.standard]: type == CheckboxType.STANDARD }),
@@ -88,11 +84,11 @@ export class CheckboxWebComponent extends HTMLElement {
     type: CheckboxType.STANDARD,
     value: false,
   }
-  private _eventListenerTracker = new EventListenerTracker()
 
   //#region html form api compatibility
   static formAssociated = true
-  private _internals: ElementInternals
+  private _internals?: ElementInternals
+  private _preRendered = false
   get value() {
     return this._attributes.value
   }
@@ -135,8 +131,12 @@ export class CheckboxWebComponent extends HTMLElement {
 
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' })
     this._internals = this.attachInternals?.() as ElementInternals
+    if (!this._internals?.shadowRoot) {
+      this.attachShadow({ mode: 'open' })
+    } else {
+      this._preRendered = true
+    }
   }
 
   private _addEventListeners = () => {
@@ -160,16 +160,17 @@ export class CheckboxWebComponent extends HTMLElement {
   render = debounce(
     () => {
       CheckboxWebComponent.renderer.render(this.shadowRoot, this._attributes)
-      this._eventListenerTracker.refreshSubscriptions()
     },
     10,
     { leading: false, trailing: true },
   )
 
   connectedCallback() {
-    this.render()
+    if (!this._preRendered) {
+      this.render()
+      this._updateReadonlyAttributes()
+    }
     this._addEventListeners()
-    this._updateReadonlyAttributes()
     this._updateForm()
   }
 
@@ -187,7 +188,7 @@ export class CheckboxWebComponent extends HTMLElement {
     }
     if (this._attributes.disabled) {
       this.removeAttribute('tabindex')
-    } else {
+    } else if (!this.getAttribute('tabindex')) {
       this.setAttribute('tabindex', '0')
     }
     this.setAttribute('role', this._attributes.tristate ? 'checkboxtristate' : 'checkbox')
@@ -238,6 +239,13 @@ export class CheckboxWebComponent extends HTMLElement {
     }
   }
 
+  get renderType() {
+    return this._attributes.type
+  }
+  set renderType(rt: string) {
+    this._attributes.type = rt
+  }
+
   attributeChangedCallback(name: string, oldVal: string, newVal: string) {
     if (oldVal !== newVal) {
       switch (name) {
@@ -253,8 +261,8 @@ export class CheckboxWebComponent extends HTMLElement {
         case 'delegated':
           this.delegated = newVal
           break
-        default:
-          this._attributes[name] = newVal
+        case 'type':
+          this.renderType = newVal
           break
       }
       this.render()

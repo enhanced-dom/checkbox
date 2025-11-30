@@ -40,6 +40,8 @@
     var(--checkbox-background-color-selected, hsl(216deg 80% 57%))
   );
   --checkbox-background-color-disabled-local: var(--checkbox-background-color-disabled, hsl(216deg 0% 57%));
+  --checkbox-text-color-disabled-local: var(--checkbox-text-color-disabled, hsl(216deg 0% 57%));
+  --checkbox-border-color-disabled-local: var(--checkbox-border-color-disabled, hsl(216deg 0% 57%));
 
   display: flex;
   align-items: center;
@@ -156,6 +158,18 @@
         height: calc(0.4 * var(--checkbox-size-local));
         border-width: 0 calc(0.125 * var(--checkbox-size-local)) calc(0.125 * var(--checkbox-size-local)) 0;
         transform: translateY(-15%) rotate(45deg);
+      }
+    }
+  }
+}
+
+:host(:host:disabled) {
+  & .checkbox {
+    &.standard {
+      &::before {
+        border: var(--checkbox-border-size-local) solid var(--checkbox-border-color-disabled-local);
+        background: var(--checkbox-border-color-disabled-local);
+        background-image: 'none';
       }
     }
   }

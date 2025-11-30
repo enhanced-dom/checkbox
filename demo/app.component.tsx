@@ -9,6 +9,7 @@ export const App = () => {
   const [value, setValue] = useState<string | null>(null)
   const [displayIcon, setDisplayIcon] = useState<boolean>(false)
   const [isTristate, setIsTristate] = useState<boolean>(true)
+  const [isDisabled, setIsDisabled] = useState<boolean>(false)
 
   const logFormData: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
@@ -29,6 +30,7 @@ export const App = () => {
           type={displayIcon ? CheckboxType.CUSTOM : CheckboxType.STANDARD}
           onChange={(e) => setValue(e.target.value as string)}
           style={{ margin: 'auto' }}
+          disabled={isDisabled}
         >
           <Icon config={{ ...faCheckCircle, namespace: 'fa5' }} slot="true" />
           <Icon config={{ ...faCircle, namespace: 'fa5' }} slot="false" />
@@ -44,6 +46,8 @@ export const App = () => {
       <label htmlFor="displayType">Show icon</label>
       <Checkbox id="tristate" value={isTristate.toString()} onChange={(e) => setIsTristate(e.target.value as boolean)} />
       <label htmlFor="tristate">Is tristate</label>
+      <Checkbox id="disabled" value={isDisabled.toString()} onChange={(e) => setIsDisabled(e.target.value as boolean)} />
+      <label htmlFor="disabled">Is disabled</label>
     </div>
   )
 }
